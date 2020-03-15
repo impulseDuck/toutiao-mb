@@ -12,7 +12,7 @@ const chat = () => import('@/views/user/chat')
 const login = () => import('@/views/login')
 const profile = () => import('@/views/user/profile')
 const search = () => import('@/views/search')
-const searchResult = () => import('@/views/search.result')
+const searchResult = () => import('@/views/search/result')
 const article = () => import('@/views/article')
 const routes = [
   {
