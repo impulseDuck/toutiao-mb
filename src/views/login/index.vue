@@ -14,6 +14,10 @@
 </template>
 
 <script>
+import * as user from '@/api/user'
+// import {login} from '@/api/user' 另一种写法
+// user.login()
+import { mapMutations } from 'vuex' // 辅助函数，可以映射
 export default {
   data () {
     return {
@@ -29,6 +33,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['updateUser']),
     checkMobile () {
       if (!this.loginForm.mobile) {
         this.errorMessage.mobile = '手机号不能为空'
@@ -55,9 +60,22 @@ export default {
       this.errorMessage.code = ''
       return true
     },
-    login () {
+    async login () {
       if (this.checkMobile() && this.checkCode()) {
         console.log('校验通过')
+        try {
+          // console.log(result)
+          const result = await user.login(this.loginForm)
+          this.updateUser({ user: result }) // 像防御更新当前的token和refreshtoken
+          const { redirectURL } = this.$route.query
+          // 如果redirect 有值跳到该地址，没有跳到主页
+          this.$router.push(redirectURL || '/')
+        } catch (error) {
+          this.$notify({
+            message: '手机号验证码错误',
+            duration: '500'
+          })
+        }
       }
     }
   }
