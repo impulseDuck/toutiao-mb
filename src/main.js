@@ -4,7 +4,7 @@ import router from './router'
 import store from './store'
 import '@/permission'
 import Vant from 'vant'// 引入vant组件库
-import 'vant/lib/index.css'// 引入vant组件的样式
+import 'vant/lib/index.less'// 引入vant组件的样式
 import 'amfe-flexible'
 import styles from './styles/index.css'// 引入自定的全局样式
 Vue.use(Vant) // 注册vant的组件库
