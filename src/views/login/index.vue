@@ -61,7 +61,9 @@ export default {
       return true
     },
     async login () {
-      if (this.checkMobile() && this.checkCode()) {
+      const vaildateMobile = this.checkMobile
+      const vaildateCode = this.checkCode
+      if (vaildateMobile && vaildateCode) {
         console.log('校验通过')
         try {
           // console.log(result)
@@ -71,9 +73,13 @@ export default {
           // 如果redirect 有值跳到该地址，没有跳到主页
           this.$router.push(redirectURL || '/')
         } catch (error) {
-          this.$notify({
-            message: '手机号验证码错误',
-            duration: '500'
+          // this.$notify({
+          //   message: '手机号验证码错误',
+          //   duration: '500'
+          // })
+          // 自己封装的，原因想让延时默认变为800
+          this.$znotify({
+            message: '手机号验证码错误'
           })
         }
       }
