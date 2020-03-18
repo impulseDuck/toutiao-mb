@@ -1,30 +1,32 @@
 <template>
   <div class="container">
     <van-tabs>
-      <van-tab :title='`标签${item}`' v-for="item in 10" :key="item">推荐</van-tab>
-<div class="scroll-wrapper">
-  <van-cell-group>
+      <van-tab :title="`标签${item}`" v-for="item in 10" :key="item">
+        <!-- <div class="scroll-wrapper" > -->
+        <!-- <van-cell-group>
 <van-cell title="标题" value="内容" v-for="item in 20" :key="item">
 </van-cell>
-</van-cell-group>
-</div>
+        </van-cell-group>-->
+        <!-- </div> -->
+        <ArticleList></ArticleList>
+      </van-tab>
     </van-tabs>
     <!-- 放置编辑频道的图片 -->
     <span class="bar_btn">
       <!-- 放入图标 -->
-     <van-icon name="wap-nav"></van-icon>
+      <van-icon name="wap-nav"></van-icon>
     </span>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
+import ArticleList from './components/article-list.vue'
 
 export default {
-  data () {
-    return {
-      active: 1
-    }
+  name: 'Home',
+  components: {
+    ArticleList
   }
 }
 </script>
@@ -44,13 +46,13 @@ export default {
       height: 2px;
     }
   }
-  /deep/ .van-tabs__content{
+  /deep/ .van-tabs__content {
     flex: 1;
     overflow: hidden;
   }
-  /deep/ .van-tab__pane{
+  /deep/ .van-tab__pane {
     height: 100%;
-    .scroll-wrapper{
+    .scroll-wrapper {
       height: 100%;
       overflow-y: auto;
     }
