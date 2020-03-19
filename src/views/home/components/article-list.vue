@@ -1,21 +1,42 @@
 <template>
-
-    <!-- 实现上拉加载 -->
-    <!-- 阅读记忆，返回后依旧回到上次阅读的地方 -->
-    <div class="scroll-wrapper">
-      <!-- 下拉刷新 -->
-      <van-pull-refresh @refresh='onRefresh' v-model="downloading" :success-text="successText">
-       <!-- 上拉加载 -->
-    <van-list v-model="uploading" @load="onLoad" :finished="finished" finished-text="当前数据加载完毕" >
-      <!-- 循环内容 -->
-      <van-cell-group >
-      <van-cell title="可怕" :value="`排队${item}`" v-for="item in articles" :key="item" ></van-cell>
-      </van-cell-group>
-    </van-list>
-      </van-pull-refresh>
-
-    </div>
-
+  <!-- 实现上拉加载 -->
+  <!-- 阅读记忆，返回后依旧回到上次阅读的地方 -->
+  <div class="scroll-wrapper">
+    <!-- 下拉刷新 -->
+    <van-pull-refresh @refresh="onRefresh" v-model="downloading" :success-text="successText">
+      <!-- 上拉加载 -->
+      <van-list v-model="uploading" @load="onLoad" :finished="finished" finished-text="当前数据加载完毕">
+        <!-- 循环内容 -->
+        <van-cell-group>
+          <van-cell v-for="item in articles" :key="item">
+            <div class="article_item">
+              <!-- 标题 -->
+               <h3 class="van-ellipsis">魔幻年</h3>
+          <!-- 三图 -->
+              <div class="img_box">
+                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+              </div>
+              <!-- 单图 -->
+                <!-- <div class="img_box">
+                  <van-image class="w100" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+                </div> -->
+                <!-- 作者信息 -->
+                <div class="info_box">
+                  <span>你像一阵风</span>
+                  <span>8评论</span>
+                  <span>10分钟前</span>
+                  <span class="close">
+                    <van-icon name="cross"></van-icon>
+                  </span>
+              </div>
+            </div>
+          </van-cell>
+        </van-cell-group>
+      </van-list>
+    </van-pull-refresh>
+  </div>
 </template>
 
 <script>
@@ -42,7 +63,10 @@ export default {
         // 如果此时记录大于50，则关闭加载
         this.finished = true
       } else {
-        const arr = Array.from(Array(15), (value, index) => this.articles.length + (index + 1))
+        const arr = Array.from(
+          Array(15),
+          (value, index) => this.articles.length + (index + 1)
+        )
         // 把数据追加到队列的最末端
         // 上拉加载不是覆盖数据
         this.articles.push(...arr)
@@ -62,6 +86,45 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang='less' scoped>
+.article_item {
+  h3 {
+    font-weight: normal;
+    line-height: 2;
+  }
+  .img_box {
+    display: flex;
+    justify-content: space-between;
+    .w33 {
+      width: 33%;
+      height: 90px;
+    }
+    .w100 {
+      width: 100%;
+      height: 180px;
+    }
+  }
+  .info_box {
+    color: #999;
+    line-height: 2;
+    position: relative;
+    font-size: 12px;
+    span {
+      padding-right: 10px;
+      &.close {
+        border: 1px solid #ddd;
+        border-radius: 2px;
+        line-height: 15px;
+        height: 12px;
+        width: 16px;
+        text-align: center;
+        padding-right: 0;
+        font-size: 8px;
+        position: absolute;
+        right: 0;
+        top: 7px;
+      }
+    }
+  }
+}
 </style>
