@@ -24,7 +24,6 @@
 // @ is an alias to /src
 import ArticleList from './components/article-list.vue'
 import { getMyChannels } from '@/api/channels'
-// import { getArticles } from '@/api/articles'
 
 export default {
   name: 'Home',

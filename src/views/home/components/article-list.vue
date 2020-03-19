@@ -8,25 +8,25 @@
       <van-list v-model="uploading" @load="onLoad" :finished="finished" finished-text="当前数据加载完毕">
         <!-- 循环内容 -->
         <van-cell-group>
-          <van-cell v-for="item in articles" :key="item.art_id">
+          <van-cell v-for="item in articles" :key="item.art_id.toString()">
             <div class="article_item">
               <!-- 标题 -->
-               <h3 class="van-ellipsis">魔幻年</h3>
+               <h3 class="van-ellipsis">{{item.title}}</h3>
           <!-- 三图 -->
-              <div class="img_box">
-                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+              <div class="img_box" v-if="item.cover.type===3">
+                <van-image class="w33" fit="cover" :src="item.cover.images[0]" />
+                <van-image class="w33" fit="cover" :src="item.cover.images[1]" />
+                <van-image class="w33" fit="cover" :src="item.cover.images[2]" />
               </div>
               <!-- 单图 -->
-                <!-- <div class="img_box">
-                  <van-image class="w100" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-                </div> -->
+                <div class="img_box"  v-if="item.cover.type===1">
+                  <van-image class="w100" fit="cover" :src="item.cover.images[0]" />
+                </div>
                 <!-- 作者信息 -->
                 <div class="info_box">
-                  <span>你像一阵风</span>
-                  <span>8评论</span>
-                  <span>10分钟前</span>
+                  <span>{{item.aut_name}}</span>
+                  <span>{{item.comm_count}}评论</span>
+                  <span>{{item.pubdate}}分钟前</span>
                   <span class="close">
                     <van-icon name="cross"></van-icon>
                   </span>
@@ -85,6 +85,7 @@ export default {
       //   this.uploading = false
       // }
       // 获取文章
+      await this.$sleep()
       const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })
       // 追加到文章的后面
       this.articles.push(...data.results)
@@ -92,18 +93,39 @@ export default {
       this.uploading = false
       // 如果将历史时间戳给timestamp，赋值前判断是否为0，若为0，则没有数据，宣布结束，若有继续加载
       if (data.pre_timestamp) {
-        this.pre_timestamp = data.pre_timestamp
+        this.timestamp = data.pre_timestamp
       } else {
         this.finished = true
       }
     },
-    onRefresh () {
-      setTimeout(() => {
-        const arr = Array.from(Array(2), (value, index) => 111 + index + 1)
-        this.articles.unshift(...arr)
-        this.downloading = false
-        this.successText = `更新了${arr.length}条数据`
-      }, 1000)
+    async onRefresh () {
+      await this.$sleep()
+      // setTimeout(() => {
+      //   const arr = Array.from(Array(2), (value, index) => 111 + index + 1)
+      //   this.articles.unshift(...arr)
+      //   this.downloading = false
+      //   this.successText = `更新了${arr.length}条数据`
+      // }, 1000)
+      const data = await getArticles({
+      // 获取最新的数据
+        channel_id: this.channel_id,
+        timestamp: Date.now()
+      })
+      // 手动关闭下拉刷新的状态
+      this.downloading = false
+      // 需要判断当前时间戳能否换来最新的数据 如果能换来，把整个旧数据替换，不能就告诉暂时没有更新
+      if (data.results.length) {
+        this.articles = data.results // 全部覆盖
+        if (data.pre_timestamp) {
+          // 因为下拉刷新换取了新数据，里面又有时间戳
+          this.finished = false // 重新换取列表
+          this.timestamp = data.pre_timestamp // 记录历史时间戳给变量
+        }
+        this.successText = `更新了${data.results.length}条数据`
+      } else {
+        // 不能换取
+        this.successText = '已经是最新状态'
+      }
     }
   }
 }
