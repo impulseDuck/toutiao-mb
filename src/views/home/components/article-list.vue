@@ -8,7 +8,7 @@
       <van-list v-model="uploading" @load="onLoad" :finished="finished" finished-text="当前数据加载完毕">
         <!-- 循环内容 -->
         <van-cell-group>
-          <van-cell v-for="item in articles" :key="item">
+          <van-cell v-for="item in articles" :key="item.art_id">
             <div class="article_item">
               <!-- 标题 -->
                <h3 class="van-ellipsis">魔幻年</h3>
@@ -40,6 +40,9 @@
 </template>
 
 <script>
+// 引入获取文章模块
+import { getArticles } from '@/api/articles'
+
 export default {
   data () {
     return {
@@ -59,7 +62,7 @@ export default {
     }
   },
   methods: {
-    onLoad () {
+    async  onLoad () {
       console.log('开始加载数据')
       //   如果有数据，加载在list中
       //   没有数据就关闭了
@@ -67,19 +70,31 @@ export default {
       //   this.finished = true
       // }, 1000)
       //
-      if (this.articles.length > 50) {
-        // 如果此时记录大于50，则关闭加载
-        this.finished = true
+      // if (this.articles.length > 50) {
+      //   // 如果此时记录大于50，则关闭加载
+      //   this.finished = true
+      // } else {
+      //   const arr = Array.from(
+      //     Array(15),
+      //     (value, index) => this.articles.length + (index + 1)
+      //   )
+      //   // 把数据追加到队列的最末端
+      //   // 上拉加载不是覆盖数据
+      //   this.articles.push(...arr)
+      //   // 添加数据，需要手动关闭loading
+      //   this.uploading = false
+      // }
+      // 获取文章
+      const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })
+      // 追加到文章的后面
+      this.articles.push(data.results)
+      // 添加数据，需要手动关闭
+      this.uploading = false
+      // 如果将历史时间戳给timestamp，赋值前判断是否为0，若为0，则没有数据，宣布结束，若有继续加载
+      if (data.pre_timestamp) {
+        this.pre_timestamp = data.pre_timestamp
       } else {
-        const arr = Array.from(
-          Array(15),
-          (value, index) => this.articles.length + (index + 1)
-        )
-        // 把数据追加到队列的最末端
-        // 上拉加载不是覆盖数据
-        this.articles.push(...arr)
-        // 添加数据，需要手动关闭loading
-        this.uploading = false
+        this.finished = true
       }
     },
     onRefresh () {
