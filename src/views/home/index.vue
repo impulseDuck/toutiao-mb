@@ -1,14 +1,15 @@
 <template>
   <div class="container">
     <van-tabs>
-      <van-tab :title="`标签${item}`" v-for="item in 10" :key="item">
+      <van-tab :title="item.name" v-for="item in channels" :key="item.id">
+      <!-- <van-tab :title="item.name" v-for="item in channels" :key="item.id"> -->
         <!-- <div class="scroll-wrapper" > -->
         <!-- <van-cell-group>
 <van-cell title="标题" value="内容" v-for="item in 20" :key="item">
 </van-cell>
         </van-cell-group>-->
         <!-- </div> -->
-        <ArticleList></ArticleList>
+        <ArticleList :channel_id='item.id'></ArticleList>
       </van-tab>
     </van-tabs>
     <!-- 放置编辑频道的图片 -->
@@ -22,11 +23,30 @@
 <script>
 // @ is an alias to /src
 import ArticleList from './components/article-list.vue'
+import { getMyChannels } from '@/api/channels'
+// import { getArticles } from '@/api/articles'
 
 export default {
   name: 'Home',
   components: {
     ArticleList
+  },
+  data () {
+    return {
+      channels: [] // 接收频道数据
+    }
+  },
+  // 设置方法
+  methods: {
+    async getMyChannels () {
+      // getMyChannels()
+      const data = await getMyChannels()
+      this.channels = data.channels
+    }
+  },
+  // 渲染函数
+  created () {
+    this.getMyChannels()
   }
 }
 </script>

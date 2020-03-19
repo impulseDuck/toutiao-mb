@@ -41,7 +41,7 @@ instance.interceptors.response.use(function (response) {
 }, async function (error) {
   // err中三个参数 config ：出现错误请求的配置文件
   //   request ：请求对象 response：响应对象 （state）状态码
-  if (error.response && error.response.state === 401) {
+  if (error.response && error.response.status === 401) {
     const path = {
       path: '/login',
       // 路由传参的两种写法 动态路由，query传参

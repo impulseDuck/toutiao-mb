@@ -47,7 +47,15 @@ export default {
       uploading: false, // 是否开启了上拉加载
       finished: false, // 是否已经完成所有数据的加载
       articles: [],
-      successText: ''
+      successText: '',
+      timestamp: '' // 存储历史时间戳
+    }
+  },
+  props: {
+    channel_id: {
+      require: true, // 必填项
+      type: Number, // 传入的属性类型
+      default: null // 默认值null
     }
   },
   methods: {
