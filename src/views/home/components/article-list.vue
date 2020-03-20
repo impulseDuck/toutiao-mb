@@ -29,7 +29,7 @@
                   <span>{{item.pubdate | relTime}}</span>
                   <!-- 是否显示叉号，根据当前登录状态来判断。登录则显示，否则不显示 -->
                   <!-- 点击触发返款，显示碳层 -->
-                  <span class="close" v-if="user.token" @click="$emit('showAction')">
+                  <span class="close" v-if="user.token" @click="$emit('showAction',item.art_id.toString())">
                     <van-icon name="cross"></van-icon>
                   </span>
               </div>
@@ -46,8 +46,27 @@
 import { getArticles } from '@/api/articles'
 // 引入辅助函数模块
 import { mapState } from 'vuex'
+import eventBus from '@/utils/eventBus'
 
 export default {
+  created () {
+    eventBus.$on('delArticle', (artId, channelId) => {
+      // 判断传递来的id，是否等于自身id
+      if (channelId === this.channel_id) {
+        const index = this.articles.findIndex(item => item.art_id.toString() === artId)
+        // 通过id查询对应文章id所在的下标
+        if (index > -1) {
+          // 因为下标从0开始，所以大于-1
+          this.articles.splice(index, 1)
+        }
+        // 但是一直删除，就会将列表全删光
+        if (this.articles.length === 0) {
+          // 说明把数据删光了
+          this.onLoad() // 给页面加数据
+        }
+      }
+    })
+  },
   computed: {
     ...mapState(['user']) // 将user对象映射到函数中
   },

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <van-tabs>
+    <van-tabs v-model="activeIndex">
       <van-tab :title="item.name" v-for="item in channels" :key="item.id">
         <!-- <van-tab :title="item.name" v-for="item in channels" :key="item.id"> -->
         <!-- <div class="scroll-wrapper" > -->
@@ -19,7 +19,7 @@
     </span>
     <!-- 放置一个弹层组件 -->
     <van-popup v-model="showMoreAction" style="width:80%">
-      <moreAction></moreAction>
+      <moreAction @dislike='dislikeArticle'></moreAction>
     </van-popup>
   </div>
 </template>
@@ -29,6 +29,10 @@
 import ArticleList from './components/article-list.vue'
 import { getMyChannels } from '@/api/channels'
 import moreAction from './components/more-actions'
+// 引入不感兴趣
+import { dislikeArticle } from '@/api/articles'
+// 引入eventBus
+import eventBus from '@/utils/eventBus'
 
 export default {
   name: 'Home',
@@ -36,10 +40,13 @@ export default {
     ArticleList,
     moreAction
   },
+
   data () {
     return {
       channels: [], // 接收频道数据
-      showMoreAction: false // 是否显示弹层
+      showMoreAction: false, // 是否显示弹层
+      articleId: null, // 用来接收点击的id
+      activeIndex: 0// 默认激活第一个
     }
   },
   // 设置方法
@@ -49,9 +56,30 @@ export default {
       const data = await getMyChannels()
       this.channels = data.channels
     },
-    openActinos () {
+    openActinos (artId) {
       // 此方法会在article-list中触发
       this.showMoreAction = true
+      // 把id存储起来
+      this.articleId = artId
+    },
+    // 对文章不感兴趣
+    async dislikeArticle () {
+      try {
+        await dislikeArticle({
+          target: this.articleId
+        })
+        this.$znotify({ type: 'success', message: '操作成功' })
+        // 利用事件广播的机制，
+        // this.channels[this.activeIndex].id
+        // 传入文章id和频道id
+        eventBus.$emit('delArticle', this.articleId, this.channels[this.activeIndex].id)
+        // 根据id来删除
+        this.showMoreAction = false
+      } catch (error) {
+        this.$znotify({
+          message: '操作失败'
+        })
+      }
     }
   },
   // 渲染函数
