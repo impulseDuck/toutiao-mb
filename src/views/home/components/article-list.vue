@@ -27,7 +27,9 @@
                   <span>{{item.aut_name}}</span>
                   <span>{{item.comm_count}}评论</span>
                   <span>{{item.pubdate | relTime}}</span>
-                  <span class="close">
+                  <!-- 是否显示叉号，根据当前登录状态来判断。登录则显示，否则不显示 -->
+                  <!-- 点击触发返款，显示碳层 -->
+                  <span class="close" v-if="user.token" @click="$emit('showAction')">
                     <van-icon name="cross"></van-icon>
                   </span>
               </div>
@@ -42,8 +44,13 @@
 <script>
 // 引入获取文章模块
 import { getArticles } from '@/api/articles'
+// 引入辅助函数模块
+import { mapState } from 'vuex'
 
 export default {
+  computed: {
+    ...mapState(['user']) // 将user对象映射到函数中
+  },
   data () {
     return {
       downloading: false,
