@@ -19,7 +19,8 @@
     </span>
     <!-- 放置一个弹层组件 -->
     <van-popup v-model="showMoreAction" style="width:80%">
-      <moreAction @dislike='dislikeArticle'></moreAction>
+      <!-- 监听举报事件 -->
+      <moreAction @dislike='dislikeOrReport("dislike")' @report='dislikeOrReport("report",$event)'></moreAction>
     </van-popup>
   </div>
 </template>
@@ -30,7 +31,7 @@ import ArticleList from './components/article-list.vue'
 import { getMyChannels } from '@/api/channels'
 import moreAction from './components/more-actions'
 // 引入不感兴趣
-import { dislikeArticle } from '@/api/articles'
+import { dislikeArticle, reportArticle } from '@/api/articles'
 // 引入eventBus
 import eventBus from '@/utils/eventBus'
 
@@ -63,11 +64,12 @@ export default {
       this.articleId = artId
     },
     // 对文章不感兴趣
-    async dislikeArticle () {
+    async dislikeOrReport (operateType, type) {
       try {
-        await dislikeArticle({
+        operateType === 'dislike' ? await dislikeArticle({
           target: this.articleId
-        })
+        }) : await reportArticle({ target: this.articleId, type })
+
         this.$znotify({ type: 'success', message: '操作成功' })
         // 利用事件广播的机制，
         // this.channels[this.activeIndex].id
@@ -81,6 +83,20 @@ export default {
         })
       }
     }
+    // async reportArticle (type) {
+    //   // 调用举报文章接口
+    //   try {
+    //     await reportArticle({ target: this.articleId, type })
+    //     // 当成功的时候，提示
+    //     this.$znotify({ type: 'success', message: '操作成功' })
+    //     eventBus.$emit('delArticle', this.articleId, this.channels[this.activeIndex].id)
+    //     this.showMoreAction = false
+    //   } catch (error) {
+    //     this.$znotify({
+    //       message: '操作失败'
+    //     })
+    //   }
+    // }
   },
   // 渲染函数
   created () {

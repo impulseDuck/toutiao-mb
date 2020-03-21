@@ -4,12 +4,13 @@
     <van-cell-group v-if="!isReport">
         <!-- 点击事件，实际上是调用父组件的接口 -->
       <van-cell @click="$emit('dislike')">不感兴趣</van-cell>
+      <!-- 注册举报项目的点击事件 -->
       <van-cell is-link @click="isReport=true">反馈垃圾内容</van-cell>
       <van-cell>拉黑作者</van-cell>
     </van-cell-group>
     <van-cell-group v-else>
       <van-cell icon="arrow-left" @click="isReport=false">返回</van-cell>
-      <van-cell v-for="item in reports" :key="item.value">{{item.label}}</van-cell>
+      <van-cell @click="$emit('report',item.value)"  v-for="item in reports" :key="item.value">{{item.label}}</van-cell>
 
     </van-cell-group>
   </div>
@@ -17,12 +18,16 @@
 
 <script>
 import { reports } from '@/api/constants' // 引入常量变量
+import eventBus from '@/utils/eventBus'
 export default {
   data () {
     return {
       isReport: false, // 表示是否举报
       reports // 来源是组件中，要遍历
     }
+  },
+  created () {
+    eventBus.$on('delArticle', () => (this.isReport = false))
   }
 }
 </script>
