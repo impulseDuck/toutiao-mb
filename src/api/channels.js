@@ -58,3 +58,17 @@ export function delChannel (id) {
     }
   })
 }
+// 添加频道的方法
+export function addChannel (channel) {
+  return new Promise(function (resolve, reject) {
+    // 有id可以直接从缓存中删除对应的id
+    // 删除频道时，无论何时都会有数据
+    const key = store.state.user.token ? CACHE_CHANNEL_V : CACHE_CHANNEL_T
+    const channels = JSON.parse(localStorage.getItem(key))
+    channels.push(channel)
+    localStorage.setItem(key, JSON.stringify(channels))
+    // 如果执行成功，应该直接resolve
+    resolve() // resolve可以传参或者不传参
+  }
+  )
+}

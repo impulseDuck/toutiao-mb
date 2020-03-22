@@ -24,7 +24,7 @@
     </van-popup>
     <!-- 频道编辑组件 -->
     <van-action-sheet v-model="showChannelEdit" :round="false" title="编辑频道">
-     <channelEdit :channels="channels" @selectChannel='selectChannel' :activeIndex="activeIndex"></channelEdit>
+     <channelEdit @delChannel='delChannel'  @addChannel="addChannel" :channels="channels" @selectChannel='selectChannel' :activeIndex="activeIndex"></channelEdit>
     </van-action-sheet>
   </div>
 </template>
@@ -32,7 +32,7 @@
 <script>
 // @ is an alias to /src
 import ArticleList from './components/article-list.vue'
-import { getMyChannels } from '@/api/channels'
+import { getMyChannels, delChannel, addChannel } from '@/api/channels'
 import moreAction from './components/more-actions'
 // 引入不感兴趣
 import { dislikeArticle, reportArticle } from '@/api/articles'
@@ -46,6 +46,7 @@ export default {
     ArticleList,
     moreAction,
     ChannelEdit
+    // delChannel
   },
 
   data () {
@@ -59,6 +60,26 @@ export default {
   },
   // 设置方法
   methods: {
+    // 增加频道的方法
+    async   addChannel (channel) {
+      await addChannel(channel)// 传入参数，写入缓存
+      this.channels.push(channel)// 将添加的channel添加到 data中的channels中
+    },
+    // 删除频道的方法
+    async  delChannel (id) {
+      // 应该先调用api
+      try {
+        await delChannel(id)
+        // 如果此时成功的resolve，我们应该移除当前data的数据
+        const index = this.channels.findIndex(item => item.id === id)
+        if (index <= this.activeIndex) {
+          this.activeIndex = this.activeIndex - 1
+        }
+        this.channels.splice(index, 1)
+      } catch (error) {
+        this.$znotify({ message: '删除频道失败' })
+      }
+    },
     // 当子组件触发selectChannel事件时候，触发该方法
     selectChannel (id) {
       // alert(id)
