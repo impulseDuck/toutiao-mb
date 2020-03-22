@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <van-tabs v-model="activeIndex">
+    <van-tabs v-model="activeIndex" :activeIndex='activeIndex'>
       <van-tab :title="item.name" v-for="item in channels" :key="item.id">
         <!-- <van-tab :title="item.name" v-for="item in channels" :key="item.id"> -->
         <!-- <div class="scroll-wrapper" > -->
@@ -9,19 +9,23 @@
 </van-cell>
         </van-cell-group>-->
         <!-- </div> -->
-        <ArticleList :channel_id="item.id" @showAction='openActinos'></ArticleList>
+        <ArticleList :channel_id="item.id" @showAction="openActinos"></ArticleList>
       </van-tab>
     </van-tabs>
     <!-- 放置编辑频道的图片 -->
     <span class="bar_btn">
       <!-- 放入图标 -->
-      <van-icon name="wap-nav"></van-icon>
+      <van-icon name="wap-nav" @click="showChannelEdit=true"></van-icon>
     </span>
     <!-- 放置一个弹层组件 -->
     <van-popup v-model="showMoreAction" style="width:80%">
       <!-- 监听举报事件 -->
-      <moreAction @dislike='dislikeOrReport("dislike")' @report='dislikeOrReport("report",$event)'></moreAction>
+      <moreAction @dislike='dislikeOrReport("dislike")'  @report='dislikeOrReport("report",$event)'></moreAction>
     </van-popup>
+    <!-- 频道编辑组件 -->
+    <van-action-sheet v-model="showChannelEdit" :round="false" title="编辑频道">
+     <channelEdit :channels="channels" @selectChannel='selectChannel' :activeIndex="activeIndex"></channelEdit>
+    </van-action-sheet>
   </div>
 </template>
 
@@ -34,12 +38,14 @@ import moreAction from './components/more-actions'
 import { dislikeArticle, reportArticle } from '@/api/articles'
 // 引入eventBus
 import eventBus from '@/utils/eventBus'
+import ChannelEdit from './components/channel-edit'
 
 export default {
   name: 'Home',
   components: {
     ArticleList,
-    moreAction
+    moreAction,
+    ChannelEdit
   },
 
   data () {
@@ -47,11 +53,27 @@ export default {
       channels: [], // 接收频道数据
       showMoreAction: false, // 是否显示弹层
       articleId: null, // 用来接收点击的id
-      activeIndex: 0// 默认激活第一个
+      activeIndex: 0, // 默认激活第一个
+      showChannelEdit: false // 是否显示频道编辑组件
     }
   },
   // 设置方法
   methods: {
+    // 当子组件触发selectChannel事件时候，触发该方法
+    selectChannel (id) {
+      // alert(id)
+      // 找到id对应的频道索引
+      const index = this.channels.findIndex(item => item.id === id)
+      this.activeIndex = index // 获取所有
+      this.showChannelEdit = false
+    },
+    // 传索引
+    // selectChannel (index) {
+    //   // alert(id)
+    //   // 找到id对应的频道索引
+    //   this.activeIndex = index // 获取所有
+    //   this.showChannelEdit = false
+    // },
     async getMyChannels () {
       // getMyChannels()
       const data = await getMyChannels()
@@ -66,15 +88,21 @@ export default {
     // 对文章不感兴趣
     async dislikeOrReport (operateType, type) {
       try {
-        operateType === 'dislike' ? await dislikeArticle({
-          target: this.articleId
-        }) : await reportArticle({ target: this.articleId, type })
+        operateType === 'dislike'
+          ? await dislikeArticle({
+            target: this.articleId
+          })
+          : await reportArticle({ target: this.articleId, type })
 
         this.$znotify({ type: 'success', message: '操作成功' })
         // 利用事件广播的机制，
         // this.channels[this.activeIndex].id
         // 传入文章id和频道id
-        eventBus.$emit('delArticle', this.articleId, this.channels[this.activeIndex].id)
+        eventBus.$emit(
+          'delArticle',
+          this.articleId,
+          this.channels[this.activeIndex].id
+        )
         // 根据id来删除
         this.showMoreAction = false
       } catch (error) {
@@ -157,6 +185,17 @@ export default {
     z-index: 1000;
     &::before {
       font-size: 20px;
+    }
+  }
+}
+.van-action-sheet {
+  max-height: 100%;
+  height: 100%;
+  .van-action-sheet__header {
+    background: #3296fa;
+    color: #fff;
+    .van-icon-close {
+      color: #fff;
     }
   }
 }
