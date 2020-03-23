@@ -33,3 +33,10 @@ export function getSuggestion (params) {
     params
   })
 }
+// 搜索方法
+export function searchArticle (params) {
+  return request({
+    url: '/search',
+    params
+  })
+}

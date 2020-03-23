@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>函数的节流和防抖</title>
+    <style>
+        div {
+            margin: 20px auto;
+            background-color: red;
+            width: 200px;
+            height: 200px;
+            text-align: center;
+            line-height: 200px;
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+
+<body>
+    <div id="regular">常规
+        <span id="regular_span"></span>
+    </div>
+    <div id="debounce">防抖
+        <span id="debounce_span"></span>
+
+    </div>
+    <div id="throttle">节流
+        <span id="throttle_span"></span>
+
+    </div>
+    <script>
+        // 常规
+        var regularNum = 0
+        var regularDom = document.getElementById('regular')
+        regularDom.onmouseover = function () {
+            regularNum++
+            regularDom.querySelector('#regular_span').innerHTML = regularNum
+        }
+        // 函数防抖，在一定时间内执行一次，若期间有打断，重新计算时间
+        var debounceNum = 0
+        var debounceDom = document.getElementById('debounce')
+        debounceDom.onmouseover = function () {
+            clearTimeout(this.timer)
+            this.timer = setTimeout(function () {
+                debounceNum++
+                debounceDom.querySelector('#debounce_span').innerHTML = debounceNum
+            }, 500)
+        }
+        // 函数的节流,在规定时间内触发一次
+        // var throttleNum = 0;
+        // var throttleDom = document.getElementById('throttle')
+        // throttleDom.onmouseover = function () {
+        //     if (!this.timer) {
+        //         this.timer = setTimeout(() => {
+        //             this.timer = null
+        //             throttleNum++
+        //             throttleDom.querySelector('#throttle_span').innerText = throttleNum
+
+        //         }, 500)
+        //     }
+        // }
+        // 时间戳版本
+        var throttleNum = 0;
+        var throttleDom = document.getElementById('throttle')
+        throttleDom.onmouseover = function () {
+            this.timer = this.timer || 0//如果有timer就用，没有就0
+            let currentTimer = Date.now() //现在的时间
+            if (currentTimer - this.timer >= 500) {
+                throttleNum++
+                throttleDom.querySelector('#throttle_span').innerText = throttleNum
+                this.timer = currentTimer
+            }
+        }
+
+
+
+    </script>
+</body>
+
+</html>
