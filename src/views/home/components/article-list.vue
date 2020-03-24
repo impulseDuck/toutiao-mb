@@ -8,7 +8,7 @@
       <van-list v-model="uploading" @load="onLoad" :finished="finished" finished-text="当前数据加载完毕">
         <!-- 循环内容 -->
         <van-cell-group>
-          <van-cell v-for="item in articles" :key="item.art_id.toString()">
+          <van-cell :to="`/article?artId=${item.art_id.toString()}`" v-for="item in articles" :key="item.art_id.toString()">
             <div class="article_item">
               <!-- 标题 -->
                <h3 class="van-ellipsis">{{item.title}}</h3>
@@ -29,7 +29,7 @@
                   <span>{{item.pubdate | relTime}}</span>
                   <!-- 是否显示叉号，根据当前登录状态来判断。登录则显示，否则不显示 -->
                   <!-- 点击触发返款，显示碳层 -->
-                  <span class="close" v-if="user.token" @click="$emit('showAction',item.art_id.toString())">
+                  <span class="close" v-if="user.token" @click.stop="$emit('showAction',item.art_id.toString())">
                     <van-icon name="cross"></van-icon>
                   </span>
               </div>

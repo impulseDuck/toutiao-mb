@@ -40,3 +40,9 @@ export function searchArticle (params) {
     params
   })
 }
+// 获取文章详情
+export function getArticlesDetails (artId) {
+  return request({
+    url: `/articles/${artId}`
+  })
+}
