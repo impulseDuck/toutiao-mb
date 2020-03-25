@@ -35,6 +35,22 @@ export function unFollowUser (autid) {
 
 export function getInfo () {
   return request({
-    url: '/user'
+    url: '/user/profile'
+  })
+}
+// 编辑用户头像
+export function changPhoto (data) {
+  return request({
+    url: '/user/photo',
+    method: 'patch',
+    data
+  })
+}
+// 保存用户信息
+export function saveInfo (data) {
+  return request({
+    url: '/user/profile',
+    method: 'patch',
+    data: { ...data, photo: null }
   })
 }
