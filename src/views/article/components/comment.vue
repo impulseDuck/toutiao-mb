@@ -33,12 +33,13 @@
       <van-field v-model="value" placeholder="写评论...">
           <!-- 控制提交评率 submiting -->
         <van-loading v-if="submiting" slot="button" type="spinner" size="16px"></van-loading>
-        <span class="submit" v-else slot="button">提交</span>
+          <!-- 如果点击提交，首先先把提交按钮隐藏，目的：防止重复提交，由于接口是异步的，会造成两次评论 -->
+        <span @click="submit" class="submit" v-else slot="button">提交</span>
       </van-field>
     </div>
     <!-- 放置评论的评论 -->
      <!-- 回复 -->
-    <van-action-sheet v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
+    <van-action-sheet @closed='reply.commentId=null' v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
       <van-list @load="getReply" :immediate-check="false" v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
         <div class="item van-hairline--bottom van-hairline--top" v-for="item in reply.comments" :key="item.com_id.toString()">
           <van-image round width="1rem" height="1rem" fit="fill" :src="item.aut_photo" />
@@ -56,7 +57,7 @@
 </template>
 
 <script>
-import { getComments } from '@/api/articles'
+import { getComments, commonetOrReply } from '@/api/articles'
 export default {
   data () {
     return {
@@ -86,6 +87,59 @@ export default {
     }
   },
   methods: {
+    // 提交的方法
+    async  submit () {
+    //  此时没有判断用户是否登录
+    // 先判断用户是否登录，登录后可以继续，否则去登录页面登录
+      // token
+      if (this.$store.state.user.token) {
+        // 如果用户登录了，是否输入评论内容，如果没有评论内容，直接返回
+        if (!this.value) {
+          return false// 如果没有内容，直接返回
+        }
+        // 如果由内容
+        this.submiting = true// 先打开提交状态，避免重复提交
+        await this.$sleep(800)// 强制休眠，有一段时间
+        // 提交评论的核心内容
+        try {
+          const data = await commonetOrReply({
+            target: this.reply.commentId ? this.reply.commentId : this.$route.query.artId, // 要么是文章id，要么是评论id
+            content: this.value,
+            art_id: this.reply.commentId ? this.$route.query.artId : null // 如果是对评论进行评论，需要传该评论，否则不传
+          })// 直接提交方法
+          if (this.reply.commentId) {
+            // 如果id存在
+            this.reply.comments.unshift(data.new_obj)
+            // 如果是对评论的评论进行回复，则对评论数加1
+            const comment = this.comments.find(item => item.com_id.toString() === this.reply.commentId)
+            comment && comment.reply_count++
+          } else {
+            // 如果id不存在
+            this.comments.unshift(data.new_obj)
+          }
+          this.submiting = false// 状态关闭，状态清空
+          this.$znotify({ type: 'success', message: '评论成功' })
+          this.value = ''
+        } catch (error) {
+          this.$znotify({ message: '评论失败' })
+        }
+      } else {
+        try {
+          // 否则没登录
+          await this.$dialog.confirm({ message: '登录后才可以评论' })
+          // 如果点击确定，则跳到登录
+          this.$router.push({
+            path: '/login',
+            query: {
+            // 用户登录成功后回到的页面
+              redirectURL: this.$route.fullPath
+            }
+          })
+        } catch (error) {
+          console.log('点击取消')
+        }
+      }
+    },
     // 打开回复面板
     openReply (commentId) {
       this.showReply = true // 弹出面板
