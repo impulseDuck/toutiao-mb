@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <van-tabs v-model="activeIndex" :activeIndex='activeIndex'>
+    <van-tabs v-model="activeIndex" :activeIndex='activeIndex' @change="changeTab">
       <van-tab :title="item.name" v-for="item in channels" :key="item.id">
         <!-- <van-tab :title="item.name" v-for="item in channels" :key="item.id"> -->
         <!-- <div class="scroll-wrapper" > -->
@@ -60,6 +60,10 @@ export default {
   },
   // 设置方法
   methods: {
+    // 切换页签
+    changeTab () {
+      eventBus.$emit('changeTab', this.channels[this.activeIndex].id)
+    },
     // 增加频道的方法
     async   addChannel (channel) {
       await addChannel(channel)// 传入参数，写入缓存

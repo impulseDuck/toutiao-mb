@@ -1,7 +1,7 @@
 <template>
   <!-- 实现上拉加载 -->
   <!-- 阅读记忆，返回后依旧回到上次阅读的地方 -->
-  <div class="scroll-wrapper">
+  <div class="scroll-wrapper" @scroll="remember" ref="myScroll">
     <!-- 下拉刷新 -->
     <van-pull-refresh @refresh="onRefresh" v-model="downloading" :success-text="successText">
       <!-- 上拉加载 -->
@@ -66,6 +66,17 @@ export default {
         }
       }
     })
+    eventBus.$on('changeTab', (id) => {
+      if (id === this.channel_id) {
+        // article-list是异步的，没办法得到渲染结果
+        this.$nextTick(() => {
+          if (this.scrollTop && this.$refs.myScroll) {
+          // 当滚动不为0,切滚动元素存在才执行
+            this.$refs.myScroll.scrollTop = this.scrollTop
+          }
+        })
+      }
+    })
   },
   computed: {
     ...mapState(['user']) // 将user对象映射到函数中
@@ -77,7 +88,8 @@ export default {
       finished: false, // 是否已经完成所有数据的加载
       articles: [],
       successText: '',
-      timestamp: '' // 存储历史时间戳
+      timestamp: '', // 存储历史时间戳
+      scrollTop: 0// 滚动位置
     }
   },
   props: {
@@ -88,6 +100,14 @@ export default {
     }
   },
   methods: {
+    // 记录滚动事件
+    remember (event) {
+    // 利用防抖函数，在一段时间内执行最后一次事件
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        this.scrollTop = event.target.scrollTop// 记录滚动的位置
+      }, 500)
+    },
     async  onLoad () {
       console.log('开始加载数据')
       //   如果有数据，加载在list中
@@ -152,6 +172,15 @@ export default {
         // 不能换取
         this.successText = '已经是最新状态'
       }
+    }
+  },
+  // 激活函数
+  activated () {
+    console.log('激活函数')
+    // 在激活函数中判断scrollTop是否发生变化
+    if (this.$refs.myScroll && this.scrollTop) {
+      // 大于0，滚动到对应位置
+      this.$refs.myScroll.scrollTop = this.scrollTop
     }
   }
 }

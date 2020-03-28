@@ -7,7 +7,11 @@
     <!-- 二级路由容器 -->
     <!-- 判断当前的地址 如果是 /user 就给一个 noTop Class -->
     <div class="my-wrapper" :class="{noTop: $route.path === '/user'}">
-      <router-view></router-view>
+        <!-- 用keep-alive包裹路由容器 -->
+    <keep-alive>
+       <router-view></router-view>
+    </keep-alive>
+
     </div>
     <!-- 标签栏组件 -->
     <!-- 表示开启路由模式 -->
