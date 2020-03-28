@@ -58,8 +58,9 @@ export default {
     // 获取用户的个人信息
     async getInfo () {
       this.userInfo = await getInfo()
+      this.updatePhoto({ photo: this.userInfo.photo })// 更新用户头像
     },
-    ...mapMutations(['delUser']),
+    ...mapMutations(['delUser', 'updatePhoto']), // 调用mutation来设置头像
     // 退出登录
     async logout () {
       // 清除token

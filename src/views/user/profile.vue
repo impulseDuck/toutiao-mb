@@ -122,6 +122,7 @@ export default {
       // 当选择完图像，就可以修改图像
       const result = await changPhoto(data)
       this.user.photo = result.photo
+      this.updatePhoto({ photo: result.photo })
       this.showPhoto = false
     },
     // 用户名

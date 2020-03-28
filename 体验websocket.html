@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #container {
+            width: 500px;
+            height: 400px;
+            border: 2px solid #ccc;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <input type="text" id="message">
+    <!-- 1建立连接 2发消息 接消息 3.关闭连接 -->
+    <button onclick="openWS()">建立连接</button>
+    <button onclick="sendMsg()">发消息</button>
+    <button onclick="closeWS()">关闭连接</button>
+</body>
+<script>
+    var dom = document.querySelector('#container')
+    var inputDom = document.getElementById('message')
+    var isOpen = false
+    // 建立连接
+    var openWS = function () {
+        // new一个地址，建立与服务端的联系
+        ws = new WebSocket('wss://echo.websocket.org')
+        ws.onopen = function (message) {
+            // alert(123)
+            // console.log(message);
+            isOpen = true
+            dom.innerHTML = dom.innerHTML + `<p>与服务器成功建立连接</p>`
+        }
+        // 接收消息
+        ws.onmessage = function (event) {
+            dom.innerHTML = dom.innerHTML + `<p style='color:blue'>我说：${event.data}</p>`
+        }
+        // 关闭消息的连接成功
+        ws.onclose = function () {
+            isOpen = false
+            dom.innerHTML = dom.innerHTML + `<p>与服务器关闭连接</p>`
+        }
+
+    }
+    // 发送消息
+    var sendMsg = function () {
+        if (inputDom.value && isOpen) {
+            ws.send(inputDom.value)
+            dom.innerHTML = dom.innerHTML + `<p style='color:red'>我说：${inputDom.value}</p>`
+            inputDom.value = ''
+        }
+    }
+    // 关闭
+    var closeWS = function () {
+        ws.close()
+    }
+
+
+
+</script>
+
+</html>
