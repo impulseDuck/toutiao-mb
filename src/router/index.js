@@ -22,7 +22,9 @@ const routes = [
     children: [
       {
         path: '', // 如果什么都不写，代表默认的2级组件
-        component: home
+        component: home,
+        // 如果一级路由存在默认的二级路由，应该写在二级路由上
+        meta: { isAlive: true }
       },
       {
         path: '/question',
